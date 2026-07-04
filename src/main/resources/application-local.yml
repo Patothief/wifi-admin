@@ -3,6 +3,10 @@ wifi-platform:
   connect-timeout: 2s
   read-timeout: 5s
 
+wifi-admin:
+  security:
+    enabled: false
+
 logging:
   level:
     local.wifiadmin: DEBUG

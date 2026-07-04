@@ -19,6 +19,8 @@ paths:
       tags: [WiFi]
       summary: Dohvati WiFi parametre za CPE
       operationId: getWifiParameter
+      security:
+        - ApiKeyAuth: []
       parameters:
         - name: cpeId
           in: path
@@ -35,6 +37,8 @@ paths:
                 $ref: '#/components/schemas/WifiConfiguration'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
         '502':
@@ -45,6 +49,8 @@ paths:
       tags: [WiFi]
       summary: Ažuriraj WiFi parametre CPE-a
       operationId: putWifiParameter
+      security:
+        - ApiKeyAuth: []
       requestBody:
         required: true
         content:
@@ -60,6 +66,8 @@ paths:
                 $ref: '#/components/schemas/WifiConfiguration'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
         '404':
           description: CPE s danim cpeId ne postoji na platformi
           content:
@@ -70,6 +78,12 @@ paths:
           $ref: '#/components/responses/BadGateway'
 
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
   schemas:
     WifiBand:
       type: string
@@ -132,6 +146,12 @@ components:
             $ref: '#/components/schemas/ErrorBody'
     NotFound:
       description: Nepoznat cpeId na platformi.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorBody'
+    Unauthorized:
+      description: Nedostaje ili nije ispravan API key.
       content:
         application/json:
           schema:

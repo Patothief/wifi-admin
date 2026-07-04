@@ -60,6 +60,63 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 Zaustavljanje backend aplikacije: `Ctrl+C` u terminalu u kojem je aplikacija pokrenuta.
 
+## Konfiguracijski profili
+
+Aplikacija koristi standardne Spring profile:
+
+- `local` - lokalni razvoj prema Mockoon platformi na `http://127.0.0.1:8080/platform`, sigurnost je iskljucena;
+- `docker` - platforma je dostupna kao `http://platform-mock:3000/platform`, sigurnost je ukljucena i trazi API key;
+- `test` - in-memory H2 baza, kraci SOAP timeouti, sigurnost iskljucena za automatizirane testove.
+
+Pokretanje s profilom:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+Za docker profil postavite API key kroz environment varijablu:
+
+```powershell
+$env:WIFI_ADMIN_API_KEY="dev-secret"
+mvn spring-boot:run -Dspring-boot.run.profiles=docker
+```
+
+## Sigurnost
+
+Sigurnost se konfigurira pod `wifi-admin.security`:
+
+```yaml
+wifi-admin:
+  security:
+    enabled: true
+    header-name: X-API-Key
+    api-key: ${WIFI_ADMIN_API_KEY}
+```
+
+Kada je sigurnost ukljucena, svaki REST poziv mora poslati API key u konfiguriranom headeru.
+Neispravan ili izostavljen API key vraca `401 UNAUTHORIZED`.
+
+Primjer poziva sa sigurnosnim headerom:
+
+```bash
+curl.exe -s "http://localhost:8081/wifi-parameter/CPE_001" -H "X-API-Key: dev-secret"
+```
+
+## Logiranje
+
+Svaki HTTP zahtjev prolazi kroz request logging filter koji:
+
+- prihvaca dolazni `X-Request-Id` ili generira novi ako header nije poslan;
+- vraca `X-Request-Id` u odgovoru;
+- zapisuje metodu, putanju, HTTP status i trajanje zahtjeva;
+- dodaje `requestId` u MDC pa se vidi u log patternu.
+
+Primjer:
+
+```bash
+curl.exe -s "http://localhost:8081/wifi-parameter/CPE_001" -H "X-Request-Id: demo-request-1"
+```
+
 ## Lokalna baza podataka
 
 Backend koristi file-based H2 bazu:

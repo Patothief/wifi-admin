@@ -20,7 +20,15 @@ wifi-sync:
   cron: "0 0 2 * * *"
   cpe-count: 12
 
+wifi-admin:
+  security:
+    enabled: false
+    header-name: X-API-Key
+    api-key:
+
 logging:
+  pattern:
+    level: "%5p [requestId=%X{requestId}]"
   level:
     local.wifiadmin: INFO
     org.apache.cxf: WARN

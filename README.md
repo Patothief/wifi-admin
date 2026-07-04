@@ -50,7 +50,7 @@ docker compose down
 
 ## Dokumentacija rješenja
 
-Upute za pokretanje backend aplikacije, testove, REST curl primjere i Postman kolekciju nalaze se u [docs/RUNNING.md](docs/RUNNING.md).
+Upute za pokretanje backend aplikacije, testove, REST curl primjere i Postman kolekciju nalaze se u [docs/RJESENJE.md](docs/RJESENJE.md).
 
 ### SOAP UI / Apache CXF i XML prefiksi
 
