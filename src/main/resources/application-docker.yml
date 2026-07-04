@@ -1,0 +1,4 @@
+wifi-platform:
+  url: http://platform-mock:3000/platform
+  connect-timeout: 2s
+  read-timeout: 5s

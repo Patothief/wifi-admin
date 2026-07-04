@@ -1,0 +1,9 @@
+wifi-platform:
+  url: http://localhost:8080/platform
+  connect-timeout: 500ms
+  read-timeout: 1s
+
+logging:
+  level:
+    local.wifiadmin: WARN
+    org.apache.cxf: ERROR

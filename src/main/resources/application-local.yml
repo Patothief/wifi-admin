@@ -1,6 +1,3 @@
-server:
-  port: 8081
-
 wifi-platform:
   url: http://localhost:8080/platform
   connect-timeout: 2s
@@ -8,5 +5,4 @@ wifi-platform:
 
 logging:
   level:
-    local.wifiadmin: INFO
-    org.apache.cxf: WARN
+    local.wifiadmin: DEBUG
