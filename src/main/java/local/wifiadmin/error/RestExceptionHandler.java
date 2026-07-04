@@ -17,6 +17,16 @@ class RestExceptionHandler {
         return badRequest(exception.getMessage());
     }
 
+    @ExceptionHandler(PlatformNotFoundException.class)
+    ResponseEntity<ErrorBody> handlePlatformNotFound(PlatformNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", exception.getMessage());
+    }
+
+    @ExceptionHandler(PlatformCommunicationException.class)
+    ResponseEntity<ErrorBody> handlePlatformCommunication(PlatformCommunicationException exception) {
+        return error(HttpStatus.BAD_GATEWAY, "BAD_GATEWAY", exception.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ErrorBody> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
         return badRequest("Request body is invalid");
@@ -33,9 +43,13 @@ class RestExceptionHandler {
     }
 
     private ResponseEntity<ErrorBody> badRequest(String message) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        return error(HttpStatus.BAD_REQUEST, "BAD_REQUEST", message);
+    }
+
+    private ResponseEntity<ErrorBody> error(HttpStatus status, String code, String message) {
+        return ResponseEntity.status(status)
                 .body(new ErrorBody()
-                        .code("BAD_REQUEST")
+                        .code(code)
                         .message(message));
     }
 }
