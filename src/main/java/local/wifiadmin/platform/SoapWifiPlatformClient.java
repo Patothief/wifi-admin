@@ -72,11 +72,25 @@ class SoapWifiPlatformClient implements WifiPlatformClient {
         if (containsIgnoreCase(faultString, "not found") || containsIgnoreCase(faultCode, "notfound")) {
             return new PlatformNotFoundException("CPE not found on platform", exception);
         }
+        if (containsThrowableMessage(exception, "not found") || containsThrowableMessage(exception, "notfound")) {
+            return new PlatformNotFoundException("CPE not found on platform", exception);
+        }
 
         return new PlatformCommunicationException("SOAP platform returned a fault", exception);
     }
 
     private boolean containsIgnoreCase(String value, String expected) {
         return value != null && value.toLowerCase().contains(expected.toLowerCase());
+    }
+
+    private boolean containsThrowableMessage(Throwable throwable, String expected) {
+        Throwable current = throwable;
+        while (current != null) {
+            if (containsIgnoreCase(current.getMessage(), expected)) {
+                return true;
+            }
+            current = current.getCause();
+        }
+        return false;
     }
 }
