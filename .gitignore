@@ -8,3 +8,4 @@ target/
 .idea/
 .postman/
 postman/globals/
+data/

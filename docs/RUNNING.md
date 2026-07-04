@@ -60,6 +60,35 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 
 Zaustavljanje backend aplikacije: `Ctrl+C` u terminalu u kojem je aplikacija pokrenuta.
 
+## Lokalna baza podataka
+
+Backend koristi file-based H2 bazu:
+
+```text
+./data/wifi-admin
+```
+
+Shema se inicijalizira iz:
+
+```text
+src/main/resources/schema.sql
+```
+
+Tablica `wifi_configuration` sprema zadnju poznatu WiFi konfiguraciju po `cpeId`.
+
+Vazno ponasanje nakon dodavanja DB sloja:
+
+- `GET /wifi-parameter/{cpeId}` cita iskljucivo iz baze i ne poziva SOAP platformu;
+- ako zapis jos ne postoji u bazi, `GET` vraca `404 NOT_FOUND`;
+- `PUT /wifi-parameter` prvo azurira SOAP platformu, zatim sprema konfiguraciju koju platforma vrati u bazu;
+- nakon uspjesnog `PUT` poziva, `GET` za isti `cpeId` vraca spremljeni zapis iz baze.
+
+Za reset lokalne baze zaustavite backend aplikaciju i obrisite H2 datoteke:
+
+```powershell
+Remove-Item -Force .\data\wifi-admin.*
+```
+
 ## Pokretanje testova
 
 ```bash
@@ -73,17 +102,29 @@ Testovi ne zahtijevaju pokrenut Docker/Mockoon jer koriste mockirane i testne SO
 Na Windows PowerShellu koristite `curl.exe`. Samo `curl` je PowerShell alias za `Invoke-WebRequest` i ne prihvaća iste parametre kao curl.
 Primjeri su napisani u jednom retku kako bi se mogli direktno kopirati u PowerShell.
 
-**Dohvat WiFi parametara:**
+**Dohvat WiFi parametara prije sinkronizacije u bazu:**
 
 ```bash
 curl.exe -s "http://localhost:8081/wifi-parameter/CPE_001"
 ```
 
-**Ažuriranje WiFi parametara:**
+Ako zapis jos nije spremljen lokalno, ocekivani odgovor je `404 NOT_FOUND`.
+
+**Azuriranje WiFi parametara i spremanje u bazu:**
 
 ```bash
 curl.exe -s -X PUT "http://localhost:8081/wifi-parameter" -H "Content-Type: application/json" -H "Accept: application/json" -d '{\"cpeId\":\"CPE_001\",\"wifiBand\":\"BAND_2_4_GHZ\",\"ssid\":\"Office-2G-Updated\",\"encryptionType\":\"WPA2_PSK\",\"password\":\"new-wifi-password\"}'
 ```
+
+Ovaj poziv mora imati dostupan SOAP mock jer backend salje promjenu na platformu prije spremanja u bazu.
+
+**Dohvat WiFi parametara iz baze nakon uspjesnog azuriranja:**
+
+```bash
+curl.exe -s "http://localhost:8081/wifi-parameter/CPE_001"
+```
+
+Ocekivani odgovor sadrzi vrijednosti spremljene nakon `PUT` poziva, npr. `Office-2G-Updated`.
 
 **Primjer neispravnog zahtjeva:**
 

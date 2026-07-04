@@ -23,6 +23,18 @@ class RestExceptionHandlerTest {
     }
 
     @Test
+    void mapsWifiConfigurationNotFoundToNotFound() {
+        ResponseEntity<ErrorBody> response = handler.handleWifiConfigurationNotFound(
+                new WifiConfigurationNotFoundException("WiFi configuration not found in database for cpeId UNKNOWN")
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody().getCode()).isEqualTo("NOT_FOUND");
+        assertThat(response.getBody().getMessage())
+                .isEqualTo("WiFi configuration not found in database for cpeId UNKNOWN");
+    }
+
+    @Test
     void mapsPlatformCommunicationToBadGateway() {
         ResponseEntity<ErrorBody> response = handler.handlePlatformCommunication(
                 new PlatformCommunicationException("Failed to communicate with SOAP platform")

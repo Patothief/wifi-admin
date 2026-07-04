@@ -7,6 +7,7 @@ import local.wifiadmin.api.model.WifiConfiguration;
 import local.wifiadmin.error.BadRequestException;
 import local.wifiadmin.error.PlatformCommunicationException;
 import local.wifiadmin.error.PlatformNotFoundException;
+import local.wifiadmin.error.WifiConfigurationNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -82,6 +83,19 @@ class WifiParameterControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("CPE not found on platform"));
+    }
+
+    @Test
+    void mapsDatabaseNotFoundToNotFoundBody() throws Exception {
+        when(service.get("UNKNOWN")).thenThrow(
+                new WifiConfigurationNotFoundException("WiFi configuration not found in database for cpeId UNKNOWN")
+        );
+
+        mockMvc.perform(get("/wifi-parameter/{cpeId}", "UNKNOWN"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("NOT_FOUND"))
+                .andExpect(jsonPath("$.message")
+                        .value("WiFi configuration not found in database for cpeId UNKNOWN"));
     }
 
     @Test

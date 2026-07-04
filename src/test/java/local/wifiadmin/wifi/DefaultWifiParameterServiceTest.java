@@ -4,50 +4,74 @@ import local.wifiadmin.api.model.EncryptionType;
 import local.wifiadmin.api.model.WifiBand;
 import local.wifiadmin.api.model.WifiConfiguration;
 import local.wifiadmin.error.BadRequestException;
+import local.wifiadmin.error.WifiConfigurationNotFoundException;
 import local.wifiadmin.platform.WifiPlatformClient;
+import local.wifiadmin.persistence.WifiConfigurationRepository;
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class DefaultWifiParameterServiceTest {
 
     private final WifiPlatformClient platformClient = mock(WifiPlatformClient.class);
+    private final WifiConfigurationRepository repository = mock(WifiConfigurationRepository.class);
     private final DefaultWifiParameterService service = new DefaultWifiParameterService(
             platformClient,
+            repository,
             new WifiParameterValidator()
     );
 
     @Test
-    void delegatesGetToPlatformClient() {
+    void getsConfigurationFromRepository() {
         WifiConfiguration expected = new WifiConfiguration("CPE_001", WifiBand._2_4_GHZ, "Office-2G")
                 .encryptionType(EncryptionType.WPA2_PSK)
                 .password("seed-wifi-01");
 
-        when(platformClient.getWifiConfiguration("CPE_001")).thenReturn(expected);
+        when(repository.findByCpeId("CPE_001")).thenReturn(Optional.of(expected));
 
         WifiConfiguration actual = service.get("CPE_001");
 
         assertThat(actual).isSameAs(expected);
-        verify(platformClient).getWifiConfiguration("CPE_001");
+        verify(repository).findByCpeId("CPE_001");
+        verifyNoInteractions(platformClient);
     }
 
     @Test
-    void delegatesUpdateToPlatformClient() {
+    void rejectsGetWhenConfigurationIsMissingFromRepository() {
+        when(repository.findByCpeId("UNKNOWN")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.get("UNKNOWN"))
+                .isInstanceOf(WifiConfigurationNotFoundException.class)
+                .hasMessage("WiFi configuration not found in database for cpeId UNKNOWN");
+
+        verify(repository).findByCpeId("UNKNOWN");
+        verifyNoInteractions(platformClient);
+    }
+
+    @Test
+    void updatesPlatformAndSavesReturnedConfiguration() {
         WifiConfiguration requested = new WifiConfiguration("CPE_001", WifiBand._5_GHZ, "Office-5G")
                 .encryptionType(EncryptionType.WPA3_SAE)
                 .password("new-password");
+        WifiConfiguration updated = new WifiConfiguration("CPE_001", WifiBand._5_GHZ, "Office-5G")
+                .encryptionType(EncryptionType.WPA3_SAE)
+                .password("new-password");
 
-        when(platformClient.updateWifiConfiguration(requested)).thenReturn(requested);
+        when(platformClient.updateWifiConfiguration(requested)).thenReturn(updated);
+        when(repository.save(updated)).thenReturn(updated);
 
         WifiConfiguration actual = service.update(requested);
 
-        assertThat(actual).isSameAs(requested);
+        assertThat(actual).isSameAs(updated);
         verify(platformClient).updateWifiConfiguration(requested);
+        verify(repository).save(updated);
     }
 
     @Test
@@ -56,7 +80,7 @@ class DefaultWifiParameterServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("cpeId must not be blank");
 
-        verifyNoInteractions(platformClient);
+        verifyNoInteractions(platformClient, repository);
     }
 
     @Test
@@ -65,7 +89,7 @@ class DefaultWifiParameterServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("Request body is required");
 
-        verifyNoInteractions(platformClient);
+        verifyNoInteractions(platformClient, repository);
     }
 
     @Test
@@ -76,7 +100,7 @@ class DefaultWifiParameterServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("cpeId must not be blank");
 
-        verifyNoInteractions(platformClient);
+        verifyNoInteractions(platformClient, repository);
     }
 
     @Test
@@ -89,7 +113,7 @@ class DefaultWifiParameterServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("wifiBand is required");
 
-        verifyNoInteractions(platformClient);
+        verifyNoInteractions(platformClient, repository);
     }
 
     @Test
@@ -100,7 +124,7 @@ class DefaultWifiParameterServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("ssid must not be blank");
 
-        verifyNoInteractions(platformClient);
+        verifyNoInteractions(platformClient, repository);
     }
 
     @Test
@@ -112,7 +136,7 @@ class DefaultWifiParameterServiceTest {
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("password is required when encryptionType is WPA2_PSK");
 
-        verifyNoInteractions(platformClient);
+        verifyNoInteractions(platformClient, repository);
     }
 
     @Test
@@ -121,11 +145,13 @@ class DefaultWifiParameterServiceTest {
                 .encryptionType(EncryptionType.OPEN);
 
         when(platformClient.updateWifiConfiguration(configuration)).thenReturn(configuration);
+        when(repository.save(configuration)).thenReturn(configuration);
 
         WifiConfiguration actual = service.update(configuration);
 
         assertThat(actual).isSameAs(configuration);
         verify(platformClient).updateWifiConfiguration(configuration);
+        verify(repository).save(configuration);
     }
 
     @Test
@@ -133,10 +159,12 @@ class DefaultWifiParameterServiceTest {
         WifiConfiguration configuration = new WifiConfiguration("CPE_003", WifiBand._2_4_GHZ, "Guest-2G");
 
         when(platformClient.updateWifiConfiguration(configuration)).thenReturn(configuration);
+        when(repository.save(configuration)).thenReturn(configuration);
 
         WifiConfiguration actual = service.update(configuration);
 
         assertThat(actual).isSameAs(configuration);
         verify(platformClient).updateWifiConfiguration(configuration);
+        verify(repository).save(configuration);
     }
 }

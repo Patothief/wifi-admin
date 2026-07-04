@@ -22,6 +22,11 @@ class RestExceptionHandler {
         return error(HttpStatus.NOT_FOUND, "NOT_FOUND", exception.getMessage());
     }
 
+    @ExceptionHandler(WifiConfigurationNotFoundException.class)
+    ResponseEntity<ErrorBody> handleWifiConfigurationNotFound(WifiConfigurationNotFoundException exception) {
+        return error(HttpStatus.NOT_FOUND, "NOT_FOUND", exception.getMessage());
+    }
+
     @ExceptionHandler(PlatformCommunicationException.class)
     ResponseEntity<ErrorBody> handlePlatformCommunication(PlatformCommunicationException exception) {
         return error(HttpStatus.BAD_GATEWAY, "BAD_GATEWAY", exception.getMessage());
