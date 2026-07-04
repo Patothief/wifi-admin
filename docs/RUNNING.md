@@ -89,6 +89,34 @@ Za reset lokalne baze zaustavite backend aplikaciju i obrisite H2 datoteke:
 Remove-Item -Force .\data\wifi-admin.*
 ```
 
+## Noćna sinkronizacija
+
+Backend ima scheduler koji periodički sinkronizira WiFi konfiguracije s platforme u lokalnu bazu.
+
+Konfiguracija se nalazi pod `wifi-sync`:
+
+```yaml
+wifi-sync:
+  cron: "0 0 2 * * *"
+  cpe-count: 12
+```
+
+`cron` koristi Spring cron format sa sekundama. Zadana vrijednost pokreće sinkronizaciju svaki dan u 02:00.
+`cpe-count` određuje koliko CPE uređaja se sinkronizira. Backend generira ID-jeve redom:
+
+```text
+CPE_001, CPE_002, CPE_003, ...
+```
+
+Za lokalno pokretanje u drugom terminu ili s manjim brojem CPE-ova:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.arguments="--wifi-sync.cron=0 30 1 * * * --wifi-sync.cpe-count=3"
+```
+
+Scheduler za svaki CPE poziva SOAP `getCpeID` na platformi i sprema vraćenu konfiguraciju u tablicu `wifi_configuration`.
+Ako sinkronizacija jednog CPE-a ne uspije, greška se logira, a scheduler nastavlja s idućim CPE-om.
+
 ## Pokretanje testova
 
 ```bash

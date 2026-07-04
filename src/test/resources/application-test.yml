@@ -13,6 +13,10 @@ wifi-platform:
   connect-timeout: 500ms
   read-timeout: 1s
 
+wifi-sync:
+  cron: "0 0 2 * * *"
+  cpe-count: 12
+
 logging:
   level:
     local.wifiadmin: WARN
