@@ -106,28 +106,6 @@ class SoapWifiPlatformClientTest {
     }
 
     @Test
-    void readsBackConfigurationWhenUpdateResponseHasLeadingWhitespaceBeforeXmlDeclaration() {
-        when(port.updateCpeId(any(UpdateCpeIdRequest.class))).thenThrow(new WebServiceException(
-                "Illegal processing instruction target (\"xml\"); xml is reserved by the specs."
-        ));
-
-        GetCpeIdResponse getResponse = new GetCpeIdResponse();
-        getResponse.setConfiguration(soapConfiguration("CPE_001"));
-        when(port.getCpeID(any(GetCpeIdRequest.class))).thenReturn(getResponse);
-
-        WifiConfiguration request = new WifiConfiguration("CPE_001", WifiBand._2_4_GHZ, "Office-2G")
-                .encryptionType(EncryptionType.WPA2_PSK)
-                .password("seed-wifi-01");
-
-        WifiConfiguration configuration = client.updateWifiConfiguration(request);
-
-        assertThat(configuration.getCpeId()).isEqualTo("CPE_001");
-        assertThat(configuration.getPassword()).isEqualTo("seed-wifi-01");
-        verify(port).updateCpeId(any(UpdateCpeIdRequest.class));
-        verify(port).getCpeID(any(GetCpeIdRequest.class));
-    }
-
-    @Test
     void mapsWebServiceFailureToPlatformCommunication() {
         when(port.getCpeID(any(GetCpeIdRequest.class))).thenThrow(new WebServiceException("timeout"));
 

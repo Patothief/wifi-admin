@@ -190,7 +190,8 @@ Frontend se nalazi u:
 frontend
 ```
 
-Preduvjet je instaliran Node.js i npm. Prvo pokrenite backend na `http://localhost:8081`, zatim u drugom terminalu:
+Preduvjet je instaliran Node.js s npm-om. Vite verzija u projektu trazi Node.js 20.19+ ili 22.12+.
+Prvo pokrenite backend na `http://localhost:8081`, zatim u drugom terminalu:
 
 ```bash
 cd frontend

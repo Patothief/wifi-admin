@@ -149,7 +149,7 @@ class SoapWifiPlatformClientHttpIntegrationTest {
     private String notFoundFault() {
         return """
                 <?xml version="1.0" encoding="UTF-8"?>
-                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="http://wifi-admin.local/platform/v1">
                   <soap:Body>
                     <soap:Fault>
                       <faultcode>tns:NotFound</faultcode>

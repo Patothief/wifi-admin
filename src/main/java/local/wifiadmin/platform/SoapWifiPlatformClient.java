@@ -52,14 +52,8 @@ class SoapWifiPlatformClient implements WifiPlatformClient {
             }
             return mapper.toRestConfiguration(response);
         } catch (SOAPFaultException exception) {
-            if (isXmlDeclarationAfterLeadingWhitespace(exception)) {
-                return getWifiConfiguration(configuration.getCpeId());
-            }
             throw mapSoapFault(exception);
         } catch (WebServiceException exception) {
-            if (isXmlDeclarationAfterLeadingWhitespace(exception)) {
-                return getWifiConfiguration(configuration.getCpeId());
-            }
             throw new PlatformCommunicationException("Failed to communicate with SOAP platform", exception);
         }
     }
@@ -100,8 +94,4 @@ class SoapWifiPlatformClient implements WifiPlatformClient {
         return false;
     }
 
-    private boolean isXmlDeclarationAfterLeadingWhitespace(Throwable throwable) {
-        return containsThrowableMessage(throwable, "Illegal processing instruction target")
-                && containsThrowableMessage(throwable, "xml");
-    }
 }
