@@ -142,3 +142,4 @@ curl -s -X POST "http://localhost:8080/platform" \
 | [wsdl/wifi-platform.wsdl](wsdl/wifi-platform.wsdl) | WSDL platforme (SOAP 1.1, document/literal) |
 | [mockoon/platform-mock.json](mockoon/platform-mock.json) | Mockoon okruženje (generirano skriptom) |
 | [docker-compose.yml](docker-compose.yml) | Mockoon CLI kontejner |
+| [frontend](frontend) | React frontend koji poziva REST API |

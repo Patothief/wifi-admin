@@ -9,3 +9,4 @@ target/
 .postman/
 postman/globals/
 data/
+frontend/dist/

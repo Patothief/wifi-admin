@@ -182,6 +182,44 @@ mvn test
 
 Testovi ne zahtijevaju pokrenut Docker/Mockoon jer koriste mockirane i testne SOAP endpointove.
 
+## Pokretanje React frontenda
+
+Frontend se nalazi u:
+
+```text
+frontend
+```
+
+Preduvjet je instaliran Node.js i npm. Prvo pokrenite backend na `http://localhost:8081`, zatim u drugom terminalu:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Vite dev server je konfiguriran na:
+
+```text
+http://localhost:5173
+```
+
+Frontend koristi Vite proxy: pozivi prema `/api` prosljeđuju se na backend `http://localhost:8081`.
+Ako želite pozivati drugi backend URL, postavite `VITE_API_BASE_URL` prije pokretanja:
+
+```powershell
+$env:VITE_API_BASE_URL="http://localhost:8081"
+npm run dev
+```
+
+Ako backend radi s uključenom API-key sigurnošću, unesite isti API key u polje `API key` u frontendu.
+
+Za produkcijski build:
+
+```bash
+npm run build
+```
+
 ## Primjeri REST poziva (curl)
 
 Na Windows PowerShellu koristite `curl.exe`. Samo `curl` je PowerShell alias za `Invoke-WebRequest` i ne prihvaća iste parametre kao curl.
