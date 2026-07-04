@@ -48,6 +48,10 @@ Zaustavljanje:
 docker compose down
 ```
 
+## Dokumentacija rješenja
+
+Upute za pokretanje backend aplikacije, testove, REST curl primjere i Postman kolekciju nalaze se u [docs/RUNNING.md](docs/RUNNING.md).
+
 ### SOAP UI / Apache CXF i XML prefiksi
 
 Mockoon čita polja iz **parsiranog XML-a** (isti model kao `xml-js`). Alati poput **SOAP UI** često generiraju **`soapenv:`** omot i **`v1:`** (ili drugi) prefiks za elemente u namespaceu platforme, dok curl primjeri u ovom README-u koriste **`soap:`** + **`tns:`**.
