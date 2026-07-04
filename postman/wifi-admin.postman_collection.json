@@ -1,0 +1,259 @@
+{
+  "info": {
+    "_postman_id": "4f7a3ec2-3c28-4db4-a070-2af8b3eaed61",
+    "name": "WiFi Admin",
+    "description": "Manual smoke tests for the WiFi Admin REST wrapper and the provided SOAP mock platform.\n\nRun order for local testing:\n1. Start Mockoon with `docker compose up -d`.\n2. Start the backend with `mvn spring-boot:run`.\n3. Run the REST requests in this collection.\n\nDefault variables assume REST backend `http://localhost:8081` and SOAP mock `http://localhost:8080/platform`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "REST API",
+      "item": [
+        {
+          "name": "Get WiFi Parameter",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wifi-parameter/{{cpeId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wifi-parameter",
+                "{{cpeId}}"
+              ]
+            },
+            "description": "Gets WiFi configuration for an existing CPE. Default seed CPE is `CPE_001`."
+          },
+          "response": []
+        },
+        {
+          "name": "Update WiFi Parameter - WPA2",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpeId\": \"{{cpeId}}\",\n  \"wifiBand\": \"BAND_2_4_GHZ\",\n  \"ssid\": \"Office-2G-Updated\",\n  \"encryptionType\": \"WPA2_PSK\",\n  \"password\": \"new-wifi-password\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wifi-parameter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wifi-parameter"
+              ]
+            },
+            "description": "Updates an existing CPE with a secured WPA2 configuration."
+          },
+          "response": []
+        },
+        {
+          "name": "Update WiFi Parameter - Open",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpeId\": \"CPE_003\",\n  \"wifiBand\": \"BAND_2_4_GHZ\",\n  \"ssid\": \"Guest-Open\",\n  \"encryptionType\": \"OPEN\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wifi-parameter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wifi-parameter"
+              ]
+            },
+            "description": "Updates an existing CPE with an open network. Password is intentionally omitted."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unknown CPE - 404",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/wifi-parameter/UNKNOWN",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wifi-parameter",
+                "UNKNOWN"
+              ]
+            },
+            "description": "Expected result: `404` with an `ErrorBody` when the platform reports the CPE is unknown."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Update - Missing Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpeId\": \"{{cpeId}}\",\n  \"wifiBand\": \"BAND_2_4_GHZ\",\n  \"ssid\": \"Office-2G\",\n  \"encryptionType\": \"WPA2_PSK\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/wifi-parameter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "wifi-parameter"
+              ]
+            },
+            "description": "Expected result: `400 BAD_REQUEST` because secured networks require a nonblank password."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SOAP Mock Platform",
+      "item": [
+        {
+          "name": "SOAP getCpeID",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "http://wifi-admin.local/platform/v1#getCpeID"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tns=\"http://wifi-admin.local/platform/v1\">\n  <soap:Body>\n    <tns:GetCpeIdRequest>\n      <tns:cpeId>{{cpeId}}</tns:cpeId>\n    </tns:GetCpeIdRequest>\n  </soap:Body>\n</soap:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{soapPlatformUrl}}",
+              "host": [
+                "{{soapPlatformUrl}}"
+              ]
+            },
+            "description": "Direct call to the provided SOAP mock. Useful when checking whether Mockoon is running."
+          },
+          "response": []
+        },
+        {
+          "name": "SOAP updateCpeId",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "text/xml; charset=utf-8"
+              },
+              {
+                "key": "SOAPAction",
+                "value": "http://wifi-admin.local/platform/v1#updateCpeId"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:tns=\"http://wifi-admin.local/platform/v1\">\n  <soap:Body>\n    <tns:UpdateCpeIdRequest>\n      <tns:configuration>\n        <tns:cpeId>{{cpeId}}</tns:cpeId>\n        <tns:wifiBand>BAND_2_4_GHZ</tns:wifiBand>\n        <tns:ssid>Office-2G-Soap</tns:ssid>\n        <tns:encryptionType>WPA2_PSK</tns:encryptionType>\n        <tns:password>soap-password</tns:password>\n      </tns:configuration>\n    </tns:UpdateCpeIdRequest>\n  </soap:Body>\n</soap:Envelope>",
+              "options": {
+                "raw": {
+                  "language": "xml"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{soapPlatformUrl}}",
+              "host": [
+                "{{soapPlatformUrl}}"
+              ]
+            },
+            "description": "Direct SOAP update call against Mockoon. Runtime changes stay in Mockoon memory until container restart."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "soapPlatformUrl",
+      "value": "http://localhost:8080/platform",
+      "type": "string"
+    },
+    {
+      "key": "cpeId",
+      "value": "CPE_001",
+      "type": "string"
+    }
+  ]
+}
