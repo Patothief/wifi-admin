@@ -6,3 +6,5 @@ scripts/
 target/
 *.class
 .idea/
+.postman/
+postman/globals/
