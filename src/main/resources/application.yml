@@ -1,0 +1,7 @@
+server:
+  port: 8081
+
+wifi-platform:
+  url: http://localhost:8080/platform
+  connect-timeout: 2s
+  read-timeout: 5s
